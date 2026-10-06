@@ -7,6 +7,10 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗓️</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Q on</title>
+<meta name="description" content="AM / PM roster">
+<meta property="og:title" content="Q on">
+<meta property="og:description" content="AM / PM roster">
+<meta property="og:type" content="website">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -54,6 +58,10 @@ input{font-size:16px}
 .r .n{display:flex;align-items:center;gap:3px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;min-width:0}
 .r .n span{overflow:hidden;text-overflow:ellipsis}
 .r .f{position:relative;display:block;height:24px;min-width:0;overflow:hidden;border-radius:6px;background:var(--field)}
+.r .f .b{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:0;border-radius:5px;background:transparent;color:var(--muted);font-size:12px;font-weight:800;padding:0;cursor:pointer;z-index:1;line-height:1}
+.r .f .b[aria-pressed="true"]{background:var(--blue);color:#fff}
+.r .f input.bold{font-weight:700}
+.sheet .bold{font-weight:700}
 .r .f:focus-within{box-shadow:0 0 0 1.5px var(--blue) inset;background:var(--cell)}
 .r .f input{position:absolute;left:0;top:0;width:125%;height:30px;transform:scale(.8);transform-origin:0 0;border:0;background:transparent;padding:0 8px;font-size:16px;outline:none}
 .r input.vac{color:var(--red);font-weight:600}
@@ -88,6 +96,9 @@ input{font-size:16px}
 .mini .rs{position:absolute;right:0;bottom:0;width:26px;height:26px;touch-action:none;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,rgba(60,60,67,.55) 50%,rgba(60,60,67,.55) 58%,transparent 58%,transparent 70%,rgba(60,60,67,.55) 70%,rgba(60,60,67,.55) 78%,transparent 78%)}
 .minipill{position:fixed;right:10px;bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:7;border:0;border-radius:999px;background:var(--cell);color:var(--blue);font-size:13px;font-weight:600;padding:7px 12px;box-shadow:0 3px 12px rgba(0,0,0,.2);cursor:pointer}
 .typing{position:fixed;left:8px;right:8px;top:0;z-index:99;pointer-events:none;background:rgba(28,28,30,.94);color:#fff;border-radius:12px;padding:8px 12px 9px;box-shadow:0 6px 22px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);max-width:640px;margin:0 auto}
+.typing{padding-right:56px}
+.typing .tb{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:10px;border:0;background:#3A3A3C;color:#fff;font-size:18px;font-weight:800;pointer-events:auto;cursor:pointer;padding:0}
+.typing .tb[aria-pressed="true"]{background:#0A84FF}
 .typing .tl{font-size:11px;font-weight:600;color:#8E8E93;letter-spacing:.02em;margin-bottom:2px}
 .typing .tl b{color:#0A84FF;font-weight:700}
 .typing .tt{font-size:17px;line-height:1.3;word-break:break-word;max-height:4.2em;overflow:hidden}
@@ -95,6 +106,14 @@ input{font-size:16px}
 .typing .tt i{display:inline-block;width:2px;height:1.05em;background:#0A84FF;vertical-align:text-bottom;margin-left:1px;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.typing .tt i{animation:none}}
+.sv{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.82);display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top,0px)) 10px calc(10px + env(safe-area-inset-bottom,0px));color:#fff}
+.sv .svt{font-size:15px;line-height:1.4;text-align:center;margin:2px 4px 8px}
+.sv .svt b{color:#FFD60A}
+.sv .svi{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;background:#E5E5EA;border-radius:10px;padding:8px;text-align:center}
+.sv .svi img{max-width:100%;height:auto;display:block;margin:0 auto;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto;background:#fff}
+.sv .svb{display:flex;gap:8px;margin-top:8px}
+.sv .svb button{flex:1;border:0;border-radius:10px;padding:11px 0;font-size:15px;font-weight:600;background:#fff;color:#007AFF;cursor:pointer}
+.sv .svb button.p{background:#007AFF;color:#fff}
 [hidden]{display:none!important}
 
 /* full preview sheet */
@@ -105,7 +124,7 @@ input{font-size:16px}
 .overlay .body{flex:1;overflow:auto;overscroll-behavior:contain;border-radius:10px;background:#E5E5EA;-webkit-overflow-scrolling:touch}
 
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;gap:8px;justify-content:center;padding:7px 10px calc(7px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--bg) 85%,transparent);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:.5px solid var(--sep)}
-.bar button{flex:1;max-width:200px;border:0;border-radius:10px;padding:9px 0;font-size:15px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff}
+.bar button{flex:1;max-width:160px;border:0;border-radius:10px;padding:9px 0;font-size:15px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff}
 .bar button.alt{background:var(--cell);color:var(--blue)}
 .bar button:disabled{opacity:.5}
 button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
@@ -161,8 +180,14 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 <div class="bar">
   <button id="btnPng">Save image</button>
   <button id="btnPdf" class="alt">Save PDF</button>
+  <button id="btnShare" class="alt">Share</button>
 </div>
-<div class="typing" id="typing" hidden aria-live="polite"><div class="tl" id="tl"></div><div class="tt" id="tt"></div></div>
+<div class="typing" id="typing" hidden aria-live="polite"><div class="tl" id="tl"></div><div class="tt" id="tt"></div><button class="tb" id="tb" aria-label="Bold" aria-pressed="false">B</button></div>
+<div class="sv" id="sv" hidden>
+  <div class="svt" id="svt"></div>
+  <div class="svi"><img id="svimg" alt="Q on"></div>
+  <div class="svb"><button id="svOpen" class="p" hidden>Open in browser</button><button id="svClose">Close</button></div>
+</div>
 <div class="toast" id="toast" role="status"></div>
 <div id="exportHost"></div>
 
@@ -200,6 +225,8 @@ function load(){
     delete s.show;
   }
   for(const n of PEOPLE){ if(!s.entries[n]) s.entries[n]={am:"",pm:""}; if(!(n in s.hidden)) s.hidden[n]=!!HIDDEN_DEFAULT[n]; }
+  for(const n of PEOPLE){ const e=s.entries[n];            // migrate old whole-cell bold flags
+    for(const c of ["am","pm"]){ if(e[c+"B"]&&e[c]&&!/\*/.test(e[c])) e[c]="*"+e[c].trim()+"*"; delete e[c+"B"]; } }
   return s;
 }
 let state=load(), saveT, prevT, editing=false;
@@ -236,10 +263,12 @@ $("list").addEventListener("input",ev=>{
   const inp=ev.target; if(!inp.dataset.k) return;
   const row=inp.closest(".r"), e=state.entries[row.dataset.n];
   e[inp.dataset.k]=inp.value; inp.classList.toggle("vac",isVac(inp.value));
+  const bt=row.querySelector(`.b[data-b="${inp.dataset.k}"]`); if(bt) bt.setAttribute("aria-pressed",hasB(inp.value));
   row.querySelector(".v").setAttribute("aria-pressed",isVac(e.am)&&isVac(e.pm));
   changed();
 });
 $("list").addEventListener("change",refreshJobs);
+$("list").addEventListener("pointerdown",ev=>{ if(ev.target.closest(".b")) ev.preventDefault(); }); // keep keyboard open
 $("list").addEventListener("keydown",ev=>{
   if(ev.key!=="Enter"||!ev.target.dataset.k) return;
   ev.preventDefault();
@@ -255,6 +284,8 @@ $("list").addEventListener("click",ev=>{
     const c=row.querySelector(".chk"); c.setAttribute("aria-pressed",!state.hidden[n]); c.textContent=state.hidden[n]?"":"✓";
     refreshNote(); changed(); return;
   }
+  const bb=ev.target.closest(".b");
+  if(bb){ toggleBold(row.querySelector(`input[data-k="${bb.dataset.b}"]`)); return; }
   const b=ev.target.closest(".v"); if(!b) return;
   const e=state.entries[n], on=b.getAttribute("aria-pressed")!=="true";
   e.am=on?VAC:""; e.pm=on?VAC:"";
@@ -277,6 +308,39 @@ $("date").value=state.date||"";
 $("date").addEventListener("input",e=>{state.date=e.target.value;changed();});
 
 function fmtDate(d){ if(!d) return "____"; try{return new Date(d+"T00:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});}catch(e){return d;} }
+
+/* ---- partial bold: *text* = bold. B button bolds the selection, else the word at the caret, else the whole cell ---- */
+const segs=t=>String(t||"").split(/(\*[^*]+\*)/).filter(x=>x!=="").map(x=>/^\*[^*]+\*$/.test(x)?{t:x.slice(1,-1),b:1}:{t:x,b:0});
+const hasB=t=>/\*[^*]+\*/.test(t||"");
+const fmt=t=>segs(t).map(g=>g.b?`<b>${esc(g.t)}</b>`:esc(g.t)).join("");
+const mixW=t=>segs(t).reduce((a,g)=>a+textW(g.t,g.b?700:400),0);
+function toggleBoldValue(v,focused,s,e){
+  const plain=x=>x.replace(/\*/g,"");
+  if(!v.trim()) return v;
+  if(!focused) return /^\s*\*[^*]+\*\s*$/.test(v) ? plain(v).trim() : "*"+plain(v).trim()+"*";
+  if(s!==e){
+    let a=s,b=e;
+    while(a<b&&/\s/.test(v[a])) a++;
+    while(b>a&&/\s/.test(v[b-1])) b--;
+    const sel=v.slice(a,b); if(!sel) return v;
+    if(sel.includes("*")) return v.slice(0,a)+plain(sel)+v.slice(b);
+    if(v[a-1]==="*"&&v[b]==="*") return v.slice(0,a-1)+sel+v.slice(b+1);
+    return v.slice(0,a)+"*"+sel+"*"+v.slice(b);
+  }
+  const re=/\*[^*]+\*/g; let m;
+  while((m=re.exec(v))){ if(s>=m.index&&s<=m.index+m[0].length) return v.slice(0,m.index)+m[0].slice(1,-1)+v.slice(m.index+m[0].length); }
+  let a=s,b=s;
+  while(a>0&&!/\s/.test(v[a-1])&&v[a-1]!=="*") a--;
+  while(b<v.length&&!/\s/.test(v[b])&&v[b]!=="*") b++;
+  if(a===b) return "*"+plain(v).trim()+"*";
+  return v.slice(0,a)+"*"+v.slice(a,b)+"*"+v.slice(b);
+}
+function toggleBold(inp){
+  const nv=toggleBoldValue(inp.value,document.activeElement===inp,inp.selectionStart,inp.selectionEnd);
+  if(nv===inp.value) return;
+  inp.value=nv;
+  inp.dispatchEvent(new Event("input",{bubbles:true}));
+}
 let SW=900; // current report width in px
 const _mc=document.createElement("canvas").getContext("2d");
 function textW(t,weight){ _mc.font=`${weight} 22px ${getComputedStyle(document.body).fontFamily}`; return _mc.measureText(t||"").width; }
@@ -285,13 +349,13 @@ function sheetHTML(){
   let nameW=0, colW=0;
   for(const n of vis){ const e=state.entries[n];
     nameW=Math.max(nameW,textW(n,700));
-    colW=Math.max(colW,textW(e.am,isVac(e.am)?400:400),textW(e.pm,400)); }
+    colW=Math.max(colW,mixW(e.am),mixW(e.pm)); }
   nameW=Math.max(150,Math.ceil(nameW)+30);
   colW=Math.max(330,Math.ceil(colW)+34);           // AM and PM always the same width
   SW=nameW+colW*2+28;
   const cols=`<colgroup><col style="width:${nameW}px"><col style="width:${colW}px"><col style="width:${colW}px"></colgroup>`;
   const rows=visible().map(n=>{const e=state.entries[n];
-    return `<tr><th>${esc(n)}</th><td class="${isVac(e.am)?"vac":""}">${esc(e.am)}</td><td class="${isVac(e.pm)?"vac":""}">${esc(e.pm)}</td></tr>`;}).join("");
+    return `<tr><th>${esc(n)}</th><td class="${isVac(e.am)?"vac":""}">${fmt(e.am)}</td><td class="${isVac(e.pm)?"vac":""}">${fmt(e.pm)}</td></tr>`;}).join("");
   const head=`<div class="st"><b>Q on ${esc(fmtDate(state.date))}</b></div>`;
   return `<div style="width:${SW-28}px">${head}<table>${cols}<thead><tr><th></th><th>AM</th><th>PM</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
@@ -300,6 +364,7 @@ function renderPreview(){
   $("sheet").innerHTML=html; $("msheet").innerHTML=html;
   if(!$("overlay").hidden) fillOverlay();
   fitPreview();
+  if(typeof scheduleShare==="function") scheduleShare();
 }
 function fitPreview(){
   const st=$("stage"), s=Math.min(1,(st.clientWidth-12)/SW);
@@ -398,10 +463,25 @@ $("ovClose").onclick=()=>{$("overlay").hidden=true;};
 
 let tT; function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tT);tT=setTimeout(()=>t.classList.remove("show"),2000);}
 
-async function capture(){
+async function capture0(){
   const host=$("exportHost"); host.innerHTML=`<div class="sheet">${sheetHTML()}</div>`;
   const c=await html2canvas(host.firstChild,{scale:2,backgroundColor:"#ffffff",logging:false});
   host.innerHTML=""; return c;
+}
+let capLock=Promise.resolve();
+function capture(){ const r=capLock.then(capture0); capLock=r.catch(()=>{}); return r; }
+
+/* ---- Share: image is pre-rendered in the background so the share sheet opens instantly on tap
+        (Share sheet -> Outlook attaches it to a new mail, OneDrive saves it) ---- */
+let shareFile=null, shareStamp=0, shareT=null;
+function scheduleShare(){ shareFile=null; shareStamp++; $("btnShare").style.opacity=".55"; clearTimeout(shareT); shareT=setTimeout(prepShare,700); }
+async function prepShare(){
+  const stamp=shareStamp;
+  try{
+    const c=await capture(); const b=await new Promise(r=>c.toBlob(r,"image/png"));
+    if(stamp!==shareStamp) return;
+    shareFile=new File([b],fname("png"),{type:"image/png"}); $("btnShare").style.opacity="";
+  }catch(e){ console.error(e); }
 }
 const fname=ext=>`Q-${state.date||"roster"}.${ext}`;
 let dl=null; (async()=>{try{if(window.claude&&claude.use) dl=await claude.use("downloads");}catch(e){}})();
@@ -411,17 +491,52 @@ async function offer(blob,filename){
     catch(e){toast(e&&e.code==="declined"?"Save cancelled":e&&e.code==="rate_limited"?"Wait a moment, then try again":"Saving isn't available in this view");}
     return;
   }
+  const ua=navigator.userAgent||"";
+  const inApp=/Line\/|FBAN|FBAV|Instagram|MicroMessenger/i.test(ua);       // in-app browsers (LINE etc.) block downloads
+  if(inApp||!("download" in HTMLAnchorElement.prototype)){
+    // 1) system share sheet (has "Save Image" / "Save to Files")
+    try{
+      const f=new File([blob],filename,{type:blob.type});
+      if(navigator.canShare&&navigator.canShare({files:[f]})){ await navigator.share({files:[f]}); return; }
+    }catch(e){ if(e&&e.name==="AbortError") return; }
+    // 2) fallback: show the image so it can be pressed and held to save
+    showSave(filename.endsWith(".pdf"));
+    return;
+  }
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
 }
+let lastImg="";
+function showSave(isPdf){
+  const inLine=/Line\//i.test(navigator.userAgent||"");
+  $("svimg").src=lastImg;
+  $("svt").innerHTML=isPdf
+    ?"PDF can't be saved inside this app.<br>Tap <b>Open in browser</b> to save a PDF, or <b>press and hold the image</b> → Save to Photos."
+    :"<b>Press and hold the image</b> → Save to Photos";
+  $("svOpen").hidden=!inLine;
+  $("sv").hidden=false;
+}
+$("svClose").onclick=()=>{$("sv").hidden=true;};
+$("svOpen").onclick=()=>{
+  const u=location.origin+location.pathname+"?openExternalBrowser=1";
+  location.href=u;
+};
 async function run(btn,fn){
   const all=[$("btnPng"),$("btnPdf")]; all.forEach(b=>b.disabled=true);
   const old=btn.textContent; btn.textContent="Creating…";
   try{await fn();}catch(e){console.error(e);toast("Couldn't create the file. Try again.");}
   btn.textContent=old; all.forEach(b=>b.disabled=false);
 }
-$("btnPng").onclick=()=>run($("btnPng"),async()=>{const c=await capture();const b=await new Promise(r=>c.toBlob(r,"image/png"));await offer(b,fname("png"));});
+$("btnShare").onclick=()=>{
+  if(!navigator.share){ toast("Sharing isn't available here. Use Save image."); return; }
+  if(shareFile && navigator.canShare && navigator.canShare({files:[shareFile]})){
+    navigator.share({files:[shareFile],title:"Q on"}).catch(e=>{ if(e&&e.name!=="AbortError") toast("Couldn't open the share sheet"); });   // called straight from the tap
+    return;
+  }
+  toast(shareFile?"This browser can't share images. Use Save image.":"Preparing the image… tap Share again");
+};
+$("btnPng").onclick=()=>run($("btnPng"),async()=>{const c=await capture();lastImg=c.toDataURL("image/png");const b=await new Promise(r=>c.toBlob(r,"image/png"));await offer(b,fname("png"));});
 $("btnPdf").onclick=()=>run($("btnPdf"),async()=>{
-  const c=await capture(); const {jsPDF}=window.jspdf;
+  const c=await capture(); lastImg=c.toDataURL("image/png"); const {jsPDF}=window.jspdf;
   const w=c.width/2, h=c.height/2;
   const pdf=new jsPDF({orientation:w>h?"l":"p",unit:"pt",format:[w,h],compress:true});
   pdf.addImage(c.toDataURL("image/png"),"PNG",0,0,w,h);
@@ -448,11 +563,15 @@ function updateTyping(){
   if(!typeEl) return;
   const v=typeEl.value, t=$("tt");
   t.classList.toggle("empty",!v);
-  t.innerHTML=(v?esc(v):"(empty)")+"<i></i>";
+  t.innerHTML=(v?fmt(v):"(empty)")+"<i></i>";
+  $("tb").setAttribute("aria-pressed",hasB(v));
 }
 $("list").addEventListener("focusin",ev=>{ if(ev.target.dataset&&ev.target.dataset.k && !editing) showTyping(ev.target); });
 $("list").addEventListener("input",ev=>{ if(ev.target===typeEl){ updateTyping(); placeTyping(); } });
 $("list").addEventListener("focusout",()=>{ hideT=setTimeout(()=>{ if(!document.activeElement||!document.activeElement.dataset||!document.activeElement.dataset.k){ typeEl=null; $("typing").hidden=true; } },150); });
+// one Bold button, only visible while typing; acts on the selection / word at the caret (pointerdown keeps the keyboard open)
+$("tb").addEventListener("pointerdown",ev=>{ ev.preventDefault(); if(typeEl){ toggleBold(typeEl); placeTyping(); } });
+$("tb").addEventListener("mousedown",ev=>ev.preventDefault());
 if(window.visualViewport){ visualViewport.addEventListener("resize",placeTyping); visualViewport.addEventListener("scroll",placeTyping); }
 addEventListener("scroll",placeTyping,{passive:true,capture:true});
 
