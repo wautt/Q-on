@@ -68,6 +68,12 @@ input{font-size:16px}
 .sheet .bold{font-weight:700}
 .r .f:focus-within{box-shadow:0 0 0 1.5px var(--blue) inset;background:var(--cell)}
 .r .f input{position:absolute;left:0;top:0;width:125%;height:30px;transform:scale(.8);transform-origin:0 0;border:0;background:transparent;padding:0 8px;font-size:16px;outline:none}
+.r .f input{color:transparent!important;caret-color:var(--ink);z-index:1}
+.r .f input.vac{font-weight:400}
+.r .f .ov{position:absolute;left:0;top:0;width:125%;height:30px;transform:scale(.8);transform-origin:0 0;padding:0 8px;font-size:16px;line-height:30px;white-space:pre;overflow:hidden;pointer-events:none;color:var(--ink);font-family:inherit}
+.r .f .ov span{display:inline-block}
+.r .f .ov b{font-weight:400;-webkit-text-stroke:.9px currentColor}   /* looks bold but keeps the same width, so the caret lines up */
+.r .f .ov.vac{color:var(--red);-webkit-text-stroke:.5px currentColor}
 .r input.vac{color:var(--red);font-weight:600}
 .r .v{width:24px;height:24px;border-radius:50%;border:0;background:transparent;color:var(--muted);font-size:10px;font-weight:600;cursor:pointer;padding:0}
 .r .v[aria-pressed="true"]{background:var(--red-soft);color:var(--red)}
@@ -115,6 +121,11 @@ input{font-size:16px}
 .sv .svb{display:flex;gap:8px;margin-top:8px}
 .sv .svb button{flex:1;border:0;border-radius:10px;padding:11px 0;font-size:15px;font-weight:600;background:#fff;color:#007AFF;cursor:pointer}
 .sv .svb button.p{background:#007AFF;color:#fff}
+.abar{position:fixed;left:8px;right:8px;top:0;z-index:120;max-width:640px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:5px 10px;background:var(--cell);border:.5px solid var(--sep);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.22)}
+.abar .bbtn{width:44px;height:32px;font-size:18px;border:1px solid var(--sep)}
+.abar .bbtn[aria-pressed="true"]{border-color:transparent}
+.abar .ablab{flex:1;font-size:13px;color:var(--muted)}
+.abar .adone{border:0;background:none;color:var(--blue);font-size:16px;font-weight:600;padding:6px 4px;cursor:pointer}
 [hidden]{display:none!important}
 
 /* full preview sheet */
@@ -175,7 +186,7 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
   <div class="top">
     <div class="bats" aria-hidden="true"><span class="bat b1"><i>🦇</i></span><span class="bat b2"><i>🦇</i></span><span class="bat b3"><i>🦇</i></span><span class="bat b4"><i>🦇</i></span></div>
     <h1>🎃 Q on <span class="ver">V02</span></h1>
-    <span class="tops"><button class="bbtn idle" id="boldBtn" aria-label="Bold" aria-pressed="false">B</button><button class="tbtn" id="editBtn">Hide / Show</button></span>
+    <span class="tops"><button class="tbtn" id="editBtn">Hide / Show</button></span>
   </div>
 
   <label class="meta"><b>Q on</b><input id="date" type="date" aria-label="Date"></label>
@@ -211,6 +222,7 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
   <div class="svi"><img id="svimg" alt="Q on"></div>
   <div class="svb"><button id="svOpen" class="p" hidden>Open in browser</button><button id="svClose">Close</button></div>
 </div>
+<div class="abar" id="abar" hidden><button class="bbtn" id="boldBtn" aria-label="Bold" aria-pressed="false">B</button><span class="ablab" id="ablab">Bold off</span><button class="adone" id="aDone">Done</button></div>
 <div class="toast" id="toast" role="status"></div>
 <div id="exportHost"></div>
 
@@ -237,6 +249,7 @@ const KEY="roster-am-pm-v11b", VAC="Vacation";
 const isVac=t=>/vacation/i.test(t||"")||(t||"").trim()==="ลา";
 const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const $=id=>document.getElementById(id);
+const BO="\u2062",BC="\u2063";   // invisible bold markers
 
 function load(){
   let s=null; try{s=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){}
@@ -251,6 +264,7 @@ function load(){
   for(const n of PEOPLE){ if(!s.entries[n]) s.entries[n]={am:"",pm:""}; if(!(n in s.hidden)) s.hidden[n]=!!HIDDEN_DEFAULT[n]; }
   for(const n of PEOPLE){ const e=s.entries[n];            // migrate old whole-cell bold flags
     for(const c of ["am","pm"]){ if(e[c+"B"]&&e[c]&&!/\*/.test(e[c])) e[c]="*"+e[c].trim()+"*"; delete e[c+"B"]; } }
+  for(const n of PEOPLE){ const e=s.entries[n]; for(const c of ["am","pm"]){ e[c]=String(e[c]||"").replace(/\*([^*]+)\*/g,BO+"$1"+BC); } }   // old *bold* data -> invisible markers
   if(s.dateSetOn!==ymd(0)){ s.date=ymd(1); s.dateSetOn=ymd(0); }   // standard = tomorrow; a manual change lasts for today
   return s;
 }
@@ -264,11 +278,11 @@ function buildList(){
     const e=state.entries[n], h=state.hidden[n];
     return `<div class="r${h?" hid":""}" data-n="${esc(n)}">
       <span class="n"><button class="chk" aria-pressed="${!h}" aria-label="Show ${esc(n)}">${h?"":"✓"}</button><span>${esc(n)}</span></span>
-      <span class="f"><input data-k="am" value="${esc(e.am)}" class="${isVac(e.am)?"vac":""}" enterkeyhint="next" autocomplete="off" autocapitalize="sentences" aria-label="${esc(n)} AM"></span>
-      <span class="f"><input data-k="pm" value="${esc(e.pm)}" class="${isVac(e.pm)?"vac":""}" enterkeyhint="next" autocomplete="off" autocapitalize="sentences" aria-label="${esc(n)} PM"></span>
+      <span class="f"><span class="ov" aria-hidden="true"><span></span></span><input data-k="am" value="${esc(e.am)}" class="${isVac(e.am)?"vac":""}" enterkeyhint="next" autocomplete="off" autocapitalize="sentences" aria-label="${esc(n)} AM"></span>
+      <span class="f"><span class="ov" aria-hidden="true"><span></span></span><input data-k="pm" value="${esc(e.pm)}" class="${isVac(e.pm)?"vac":""}" enterkeyhint="next" autocomplete="off" autocapitalize="sentences" aria-label="${esc(n)} PM"></span>
       <button class="v" aria-pressed="${isVac(e.am)&&isVac(e.pm)}" aria-label="${esc(n)} vacation all day">Vac</button>
     </div>`;}).join("");
-  refreshJobs(); refreshNote();
+  refreshJobs(); refreshNote(); refreshOv();
 }
 function refreshNote(){
   const hid=PEOPLE.filter(n=>state.hidden[n]);
@@ -286,7 +300,7 @@ $("editBtn").onclick=()=>{
 };
 $("list").addEventListener("input",ev=>{
   const inp=ev.target; if(!inp.dataset.k) return;
-  boldTransform(inp);
+  boldTransform(inp); renderOv(inp);
   const row=inp.closest(".r"), e=state.entries[row.dataset.n];
   e[inp.dataset.k]=inp.value; inp.classList.toggle("vac",isVac(inp.value));
   const bt=row.querySelector(`.b[data-b="${inp.dataset.k}"]`); if(bt) bt.setAttribute("aria-pressed",hasB(inp.value));
@@ -315,7 +329,7 @@ $("list").addEventListener("click",ev=>{
   const b=ev.target.closest(".v"); if(!b) return;
   const e=state.entries[n], on=b.getAttribute("aria-pressed")!=="true";
   e.am=on?VAC:""; e.pm=on?VAC:"";
-  row.querySelectorAll("input").forEach(i=>{i.value=e[i.dataset.k];i.classList.toggle("vac",on);});
+  row.querySelectorAll("input").forEach(i=>{i.value=e[i.dataset.k];i.classList.toggle("vac",on);renderOv(i);});
   b.setAttribute("aria-pressed",on); changed();
 });
 let clearT=null;
@@ -335,31 +349,48 @@ $("date").addEventListener("input",e=>{state.date=e.target.value;state.dateSetOn
 
 function fmtDate(d){ if(!d) return "____"; try{return new Date(d+"T00:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});}catch(e){return d;} }
 
-/* ---- partial bold: *text* = bold. B button bolds the selection, else the word at the caret, else the whole cell ---- */
-const segs=t=>String(t||"").split(/(\*[^*]+\*)/).filter(x=>x!=="").map(x=>/^\*[^*]+\*$/.test(x)?{t:x.slice(1,-1),b:1}:{t:x,b:0});
-const hasB=t=>/\*[^*]+\*/.test(t||"");
+/* ---- bold: stored with invisible markers (BO ... BC) around bold text, so no symbols ever show in the field ---- */
+const segs=t=>String(t||"").split(/(⁢[^⁢⁣]+⁣)/).filter(x=>x!=="").map(x=>(x[0]===BO&&x.length>=3&&x.endsWith(BC))?{t:x.slice(1,-1),b:1}:{t:x.replace(/[⁢⁣]/g,""),b:0});
+const hasB=t=>/⁢[^⁢⁣]+⁣/.test(t||"");
 const fmt=t=>segs(t).map(g=>g.b?`<b>${esc(g.t)}</b>`:esc(g.t)).join("");
+function renderOv(inp){                  // paints the formatted (partly bold) text behind the transparent input
+  const ov=inp.previousElementSibling; if(!ov||!ov.classList.contains("ov")) return;
+  ov.firstElementChild.innerHTML=fmt(inp.value);
+  ov.classList.toggle("vac",isVac(inp.value));
+  ov.firstElementChild.style.transform=`translateX(${-inp.scrollLeft}px)`;
+}
+function refreshOv(){ $("list").querySelectorAll(".f input").forEach(renderOv); }
+$("list").addEventListener("focusout",ev=>{ if(ev.target.dataset&&ev.target.dataset.k) setTimeout(()=>renderOv(ev.target),50); });
+function ovLoop(){                       // keep the painted text scrolled like the input while typing long text
+  const ov=typeEl&&typeEl.previousElementSibling;
+  if(ov&&ov.firstElementChild) ov.firstElementChild.style.transform=`translateX(${-typeEl.scrollLeft}px)`;
+  requestAnimationFrame(ovLoop);
+}
 const mixW=t=>segs(t).reduce((a,g)=>a+textW(g.t,g.b?700:400),0);
-function toggleBoldValue(v,focused,s,e){
-  const plain=x=>x.replace(/\*/g,"");
-  if(!v.trim()) return v;
-  if(!focused) return /^\s*\*[^*]+\*\s*$/.test(v) ? plain(v).trim() : "*"+plain(v).trim()+"*";
-  if(s!==e){
-    let a=s,b=e;
-    while(a<b&&/\s/.test(v[a])) a++;
-    while(b>a&&/\s/.test(v[b-1])) b--;
-    const sel=v.slice(a,b); if(!sel) return v;
-    if(sel.includes("*")) return v.slice(0,a)+plain(sel)+v.slice(b);
-    if(v[a-1]==="*"&&v[b]==="*") return v.slice(0,a-1)+sel+v.slice(b+1);
-    return v.slice(0,a)+"*"+sel+"*"+v.slice(b);
-  }
-  const re=/\*[^*]+\*/g; let m;
-  while((m=re.exec(v))){ if(s>=m.index&&s<=m.index+m[0].length) return v.slice(0,m.index)+m[0].slice(1,-1)+v.slice(m.index+m[0].length); }
-  let a=s,b=s;
-  while(a>0&&!/\s/.test(v[a-1])&&v[a-1]!=="*") a--;
-  while(b<v.length&&!/\s/.test(v[b])&&v[b]!=="*") b++;
-  if(a===b) return "*"+plain(v).trim()+"*";
-  return v.slice(0,a)+"*"+v.slice(a,b)+"*"+v.slice(b);
+function parseB(v){                       // plain text + per-character bold flags + map from string index to plain index
+  let text="",flags=[],map=[],bold=false;
+  for(let i=0;i<v.length;i++){ const c=v[i]; map.push(text.length); if(c===BO){bold=true;continue;} if(c===BC){bold=false;continue;} text+=c; flags.push(bold?1:0); }
+  map.push(text.length); return {text,flags,map};
+}
+function serB(text,flags){
+  let out="",inb=false;
+  for(let i=0;i<text.length;i++){ const f=flags[i]; if(f&&!inb){out+=BO;inb=true;} if(!f&&inb){out+=BC;inb=false;} out+=text[i]; }
+  return inb?out+BC:out;
+}
+function toggleBoldValue(v,s,e){          // bold / unbold the selected part
+  const p=parseB(v); let a=p.map[s], b=p.map[e];
+  if(a===undefined||b===undefined) return v;
+  while(a<b&&/\s/.test(p.text[a])) a++;
+  while(b>a&&/\s/.test(p.text[b-1])) b--;
+  if(a>=b) return v;
+  const all=p.flags.slice(a,b).every(f=>f), fl=p.flags.slice();
+  for(let i=a;i<b;i++) fl[i]=all?0:1;
+  return serB(p.text,fl);
+}
+function posAfterPlain(v,n){ if(n<=0) return 0; let c=0; for(let i=0;i<v.length;i++){ if(v[i]!==BO&&v[i]!==BC){ c++; if(c===n) return i+1; } } return v.length; }
+function cleanEmpty(v,c){
+  const f=x=>x.replace(/⁢⁣/g,"").replace(/⁣⁢/g,"");
+  const bf=v.slice(0,c); return [f(v), c-(bf.length-f(bf).length)];
 }
 
 /* ---- keyboard-style bold: tap B (no selection) = bold typing on, tap again = off. Selection + B = bold/unbold the selection ---- */
@@ -378,24 +409,30 @@ function boldTransform(inp){
   const before=nv.slice(0,a), ins=nv.slice(a,nv.length-b), after=nv.slice(nv.length-b);
   let out=nv, pos=null;
   if(ins){
-    if(!ins.includes("*")){
-      const inside=((before.match(/\*/g)||[]).length%2)===1;
+    if(!/[⁢⁣]/.test(ins)){
+      const inside=before.lastIndexOf(BO)>before.lastIndexOf(BC);
       if(boldMode&&!inside){
-        if(before.endsWith("*")){ out=before.slice(0,-1)+ins+"*"+after; pos=before.length-1+ins.length; }   // continue the bold run just before
-        else{ out=before+"*"+ins+"*"+after; pos=before.length+1+ins.length; }
-      }else if(!boldMode&&inside&&after.startsWith("*")){ out=before+"*"+ins+after.slice(1); pos=before.length+1+ins.length; } // bold is off: step out of the run
+        if(before.endsWith(BC)){ out=before.slice(0,-1)+ins+BC+after; pos=before.length-1+ins.length; }   // continue the bold run just before
+        else{ out=before+BO+ins+BC+after; pos=before.length+1+ins.length; }
+      }else if(!boldMode&&inside&&after.startsWith(BC)){ out=before+BC+ins+after.slice(1); pos=before.length+1+ins.length; } // bold is off: step out of the run
     }
-  }else if(nv.includes("**")){
-    const c=inp.selectionStart, bf=nv.slice(0,c);
-    out=nv.replace(/\*\*/g,""); pos=c-(bf.length-bf.replace(/\*\*/g,"").length);
+  }else{
+    const del=pv.slice(a,pv.length-b);
+    if(del&&/^[⁢⁣]+$/.test(del)){            // backspace landed on an invisible marker: delete the visible character before it instead
+      let k=a-1; while(k>=0&&(pv[k]===BO||pv[k]===BC)) k--;
+      if(k>=0){ out=pv.slice(0,k)+pv.slice(k+1); pos=k; } else { out=pv; pos=a+del.length; }
+    }
+    const t=cleanEmpty(out,pos===null?inp.selectionStart:pos); out=t[0]; pos=t[1];
   }
   if(out!==nv){ inp.value=out; try{inp.setSelectionRange(pos,pos);}catch(e){} }
   inp._pv=inp.value;
 }
 function toggleBold(inp){
-  const nv=toggleBoldValue(inp.value,document.activeElement===inp,inp.selectionStart,inp.selectionEnd);
-  if(nv===inp.value) return;
+  const s=inp.selectionStart, e=inp.selectionEnd, v=inp.value;
+  const nv=toggleBoldValue(v,s,e); if(nv===v) return;
+  const endPlain=parseB(v).map[e];
   inp.value=nv; inp._skip=true;
+  try{ const p=posAfterPlain(nv,endPlain); inp.setSelectionRange(p,p); }catch(x){}
   inp.dispatchEvent(new Event("input",{bubbles:true}));
 }
 let SW=900; // current report width in px
@@ -611,6 +648,15 @@ $("btnPdf").onclick=()=>run($("btnPdf"),async()=>{
 
 /* ---- typing preview: shows the full text of the field being edited ---- */
 let typeEl=null, hideT=null;
+function placeBar(){
+  // sits right next to the typing bubble (on the side away from the row), not at the keyboard edge
+  const bar=$("abar"), tb=$("typing"); if(bar.hidden||tb.hidden||!typeEl) return;
+  const t=tb.getBoundingClientRect(), r=typeEl.closest(".r").getBoundingClientRect();
+  const h=bar.offsetHeight||42, bubbleAbove=t.bottom<=r.top+2;
+  let top=bubbleAbove?t.top-h-6:t.bottom+6;
+  if(top<4) top=t.bottom+6;                       // no room above: go below the bubble
+  bar.style.transform=`translateY(${Math.round(top)}px)`;
+}
 function placeTyping(){
   // anchor next to the field being edited, so it is always where you are looking
   const box=$("typing"); if(!typeEl||box.hidden) return;
@@ -618,18 +664,20 @@ function placeTyping(){
   let top=r.top-h-8;
   if(top<6) top=r.bottom+8;                       // no room above: put it just below the row
   box.style.transform=`translateY(${Math.round(top)}px)`;
+  placeBar();
 }
 function showTyping(inp){
   if(typeEl!==inp) boldMode=false;
   typeEl=inp; clearTimeout(hideT); inp._pv=inp.value;
   const row=inp.closest(".r"), n=row.dataset.n, k=inp.dataset.k.toUpperCase();
   $("tl").innerHTML=`<b>${esc(n)}</b> · ${k}`;
-  updateTyping(); $("typing").hidden=false; placeTyping(); setTimeout(placeTyping,120); setTimeout(placeTyping,400);
+  updateTyping(); $("typing").hidden=false; $("abar").hidden=false; placeTyping(); placeBar(); setTimeout(()=>{placeTyping();placeBar();},120); setTimeout(()=>{placeTyping();placeBar();},400);
 }
 function syncBold(){
   const b=$("boldBtn"); if(!b) return;
   b.classList.toggle("idle",!typeEl);
   b.setAttribute("aria-pressed",!!(typeEl&&boldMode));
+  const l=$("ablab"); if(l) l.textContent=boldMode?"Bold on":"Bold off · select text to bold part";
 }
 function updateTyping(){
   syncBold();
@@ -652,13 +700,19 @@ function updateTyping(){
   bb.addEventListener("mousedown",ev=>ev.preventDefault());
   bb.addEventListener("touchstart",ev=>ev.preventDefault(),{passive:false});
 })();
+(function(){
+  const bar=$("abar");
+  bar.addEventListener("mousedown",ev=>ev.preventDefault());
+  bar.addEventListener("touchstart",ev=>{ if(!ev.target.closest("#aDone")) ev.preventDefault(); },{passive:false});
+  $("aDone").addEventListener("click",()=>{ if(typeEl) typeEl.blur(); });
+})();
 $("list").addEventListener("focusin",ev=>{ if(ev.target.dataset&&ev.target.dataset.k && !editing) showTyping(ev.target); });
 $("list").addEventListener("input",ev=>{ if(ev.target===typeEl){ updateTyping(); placeTyping(); } });
-$("list").addEventListener("focusout",()=>{ hideT=setTimeout(()=>{ if(!document.activeElement||!document.activeElement.dataset||!document.activeElement.dataset.k){ typeEl=null; boldMode=false; $("typing").hidden=true; syncBold(); } },150); });
-if(window.visualViewport){ visualViewport.addEventListener("resize",placeTyping); visualViewport.addEventListener("scroll",placeTyping); }
-addEventListener("scroll",placeTyping,{passive:true,capture:true});
+$("list").addEventListener("focusout",()=>{ hideT=setTimeout(()=>{ if(!document.activeElement||!document.activeElement.dataset||!document.activeElement.dataset.k){ typeEl=null; boldMode=false; $("typing").hidden=true; $("abar").hidden=true; syncBold(); } },150); });
+if(window.visualViewport){ visualViewport.addEventListener("resize",()=>{placeTyping();placeBar();}); visualViewport.addEventListener("scroll",()=>{placeTyping();placeBar();}); }
+addEventListener("scroll",()=>{placeTyping();placeBar();},{passive:true,capture:true});
 
-buildList(); renderPreview(); setMini(state.mini.open);
+buildList(); renderPreview(); setMini(state.mini.open); ovLoop();
 </script>
 </body>
 </html>
