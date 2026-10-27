@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-title" content="Q on">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗓️</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<title>Q on V02</title>
+<title>Q on V02.1</title>
 <meta name="description" content="AM / PM roster">
 <meta property="og:title" content="Q on">
 <meta property="og:description" content="AM / PM roster">
@@ -129,7 +129,7 @@ input{font-size:16px}
 [hidden]{display:none!important}
 
 /* full preview sheet */
-.overlay{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.55);display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top,0px)) 10px calc(10px + env(safe-area-inset-bottom,0px))}
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.55);display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top,0px)) 10px calc(10px + env(safe-area-inset-bottom,0px))}
 .overlay .ob{display:flex;justify-content:space-between;gap:6px;margin-bottom:6px}
 .overlay .zm{display:flex;gap:6px}
 .overlay .ob button{border:0;background:var(--cell);color:var(--blue);border-radius:999px;padding:6px 14px;font-size:15px;font-weight:600;cursor:pointer}
@@ -141,7 +141,7 @@ input{font-size:16px}
 .bar button:disabled{opacity:.5}
 button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 
-.toast{position:fixed;left:50%;bottom:70px;transform:translateX(-50%);opacity:0;background:rgba(60,60,67,.92);color:#fff;padding:7px 14px;border-radius:999px;font-size:13px;transition:opacity .2s;pointer-events:none;z-index:30;max-width:90vw;text-align:center}
+.toast{position:fixed;left:50%;bottom:70px;transform:translateX(-50%);opacity:0;background:rgba(60,60,67,.92);color:#fff;padding:7px 14px;border-radius:999px;font-size:13px;transition:opacity .2s;pointer-events:none;z-index:300;max-width:90vw;text-align:center}
 .toast.show{opacity:1}
 
 /* sheet (fixed light colors for export) */
@@ -179,13 +179,29 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 @keyframes flap{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.5)}}
 @keyframes bob{0%,100%{margin-top:0}50%{margin-top:6px}}
 @media (prefers-reduced-motion:reduce){.bat,.bat i{animation:none}.bat.b1{left:62%}.bat.b2{left:78%}.bat.b3{left:46%}.bat.b4{left:90%}}
+
+/* V02.1: bats burst out of the screen when the page opens (tap the title to replay) */
+.intro{position:fixed;inset:0;z-index:1000;pointer-events:none;overflow:hidden;opacity:0;animation:introBg 3.6s ease-in-out forwards}
+.intro::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,rgba(255,150,50,.6) 0%,rgba(130,45,170,.5) 26%,rgba(18,6,32,.78) 78%)}
+@keyframes introBg{0%{opacity:0}12%{opacity:1}70%{opacity:1}100%{opacity:0}}
+.ib{position:absolute;left:50%;top:42%;width:120px;height:60px;margin:-30px 0 0 -60px;opacity:0;animation:ibFly var(--t) cubic-bezier(.5,.05,.92,.5) var(--d) forwards}
+@keyframes ibFly{0%{transform:translate(0,0) scale(.06) rotate(var(--r));opacity:0}8%{opacity:1}78%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(var(--s)) rotate(var(--r2));opacity:0}}
+.ib svg{width:100%;height:100%;display:block;fill:#0B0414;overflow:visible;animation:ibWob .45s ease-in-out infinite alternate}
+@keyframes ibWob{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
+.ib .wl,.ib .wr{transform-box:fill-box;animation-duration:.17s;animation-timing-function:ease-in-out;animation-iteration-count:infinite;animation-direction:alternate}
+.ib .wl{transform-origin:100% 30%;animation-name:ibFlapL}
+.ib .wr{transform-origin:0% 30%;animation-name:ibFlapR}
+@keyframes ibFlapL{from{transform:rotate(22deg)}to{transform:rotate(-26deg)}}
+@keyframes ibFlapR{from{transform:rotate(-22deg)}to{transform:rotate(26deg)}}
+.top h1{cursor:pointer}
+@media (prefers-reduced-motion:reduce){.intro{display:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top">
     <div class="bats" aria-hidden="true"><span class="bat b1"><i>🦇</i></span><span class="bat b2"><i>🦇</i></span><span class="bat b3"><i>🦇</i></span><span class="bat b4"><i>🦇</i></span></div>
-    <h1>🎃 Q on <span class="ver">V02</span></h1>
+    <h1>🎃 Q on <span class="ver">V02.1</span></h1>
     <span class="tops"><button class="tbtn" id="editBtn">Hide / Show</button></span>
   </div>
 
@@ -223,6 +239,7 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
   <div class="svb"><button id="svOpen" class="p" hidden>Open in browser</button><button id="svClose">Close</button></div>
 </div>
 <div class="abar" id="abar" hidden><button class="bbtn" id="boldBtn" aria-label="Bold" aria-pressed="false">B</button><span class="ablab" id="ablab">Bold off</span><button class="adone" id="aDone">Done</button></div>
+<div class="intro" id="intro" aria-hidden="true"></div>
 <div class="toast" id="toast" role="status"></div>
 <div id="exportHost"></div>
 
@@ -713,6 +730,29 @@ if(window.visualViewport){ visualViewport.addEventListener("resize",()=>{placeTy
 addEventListener("scroll",()=>{placeTyping();placeBar();},{passive:true,capture:true});
 
 buildList(); renderPreview(); setMini(state.mini.open); ovLoop();
+/* ---- V02.1 intro: a swarm of bats flies out of the screen toward you ---- */
+function batBurst(){
+  const el=$("intro"); if(!el) return;
+  if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const W=innerWidth,H=innerHeight,N=20,r=(a,b)=>a+Math.random()*(b-a);
+  el.innerHTML=""; el.style.animation="none"; void el.offsetWidth; el.style.animation="";
+  for(let i=0;i<N;i++){
+    const a=(i/N)*Math.PI*2+r(-.2,.2), close=i%5===0;          // every 5th bat comes almost straight at you
+    const b=document.createElement("div"); b.className="ib"; b.innerHTML=BAT_SVG;
+    const dx=Math.cos(a)*W*(close?r(.05,.25):r(.55,1.05)), dy=Math.sin(a)*H*(close?r(.05,.2):r(.45,.9));
+    const rot=r(-28,28);
+    b.style.setProperty("--dx",dx.toFixed(0)+"px"); b.style.setProperty("--dy",dy.toFixed(0)+"px");
+    b.style.setProperty("--s",(close?r(8,11):r(2.6,6.5)).toFixed(2));
+    b.style.setProperty("--r",rot.toFixed(0)+"deg"); b.style.setProperty("--r2",(rot+r(-30,30)+(dx>0?14:-14)).toFixed(0)+"deg");
+    b.style.setProperty("--t",r(1.7,2.7).toFixed(2)+"s"); b.style.setProperty("--d",r(0,1.0).toFixed(2)+"s");
+    el.appendChild(b);
+  }
+  clearTimeout(batBurst.t); batBurst.t=setTimeout(()=>{el.innerHTML="";},4800);
+}
+const BAT_SVG='<svg viewBox="0 0 100 50" aria-hidden="true"><g class="wl"><path d="M45 17Q31 4 3 9Q11 17 9 28Q17 22 23 31Q27 25 33 35Q39 29 45 31Z"/></g><g class="wr"><path d="M55 17Q69 4 97 9Q89 17 91 28Q83 22 77 31Q73 25 67 35Q61 29 55 31Z"/></g><path d="M50 13L53.5 6L56 15Q58.5 21 56 29Q54 37 50 41Q46 37 44 29Q41.5 21 44 15L46.5 6Z"/></svg>';
+const _h1=document.querySelector(".top h1"); if(_h1) _h1.addEventListener("click",batBurst);
+setTimeout(batBurst,250);
+
 </script>
 </body>
 </html>
