@@ -7,6 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗓️</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Q on V02.1</title>
+<meta name="build" content="20261027-0745">
 <meta name="description" content="AM / PM roster">
 <meta property="og:title" content="Q on">
 <meta property="og:description" content="AM / PM roster">
@@ -752,6 +753,18 @@ function batBurst(){
 const BAT_SVG='<svg viewBox="0 0 100 50" aria-hidden="true"><g class="wl"><path d="M45 17Q31 4 3 9Q11 17 9 28Q17 22 23 31Q27 25 33 35Q39 29 45 31Z"/></g><g class="wr"><path d="M55 17Q69 4 97 9Q89 17 91 28Q83 22 77 31Q73 25 67 35Q61 29 55 31Z"/></g><path d="M50 13L53.5 6L56 15Q58.5 21 56 29Q54 37 50 41Q46 37 44 29Q41.5 21 44 15L46.5 6Z"/></svg>';
 const _h1=document.querySelector(".top h1"); if(_h1) _h1.addEventListener("click",batBurst);
 setTimeout(batBurst,250);
+
+/* ---- auto-update: on open, check whether a newer index.html exists and reload once if so (helps the Home Screen shortcut) ---- */
+(function(){
+  const cur=(document.querySelector('meta[name="build"]')||{}).content; if(!cur) return;
+  fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{
+    const m=t.match(/<meta name="build" content="([^"]+)"/); if(!m||m[1]===cur) return;
+    let tried=""; try{tried=sessionStorage.getItem("q_build_try")||"";}catch(e){}
+    if(tried===m[1]) return;                                   // never loop
+    try{sessionStorage.setItem("q_build_try",m[1]);}catch(e){}
+    location.replace(location.pathname+"?b="+encodeURIComponent(m[1]));
+  }).catch(()=>{});
+})();
 
 </script>
 </body>
