@@ -7,7 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗓️</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Q on</title>
-<meta name="build" content="20261101-1401">
+<meta name="build" content="20261105-1802">
 <meta name="description" content="AM / PM roster">
 <meta property="og:title" content="Q on">
 <meta property="og:description" content="AM / PM roster">
@@ -44,9 +44,6 @@ input{font-size:16px}
 
 .top{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;margin:0 -8px 4px;padding:4px 12px;background:var(--bg)}
 .tops{display:flex;align-items:center;gap:4px}
-.bbtn{width:36px;height:30px;border:0;border-radius:8px;background:var(--cell);color:var(--ink);font-weight:800;font-size:16px;cursor:pointer;padding:0}
-.bbtn.idle{opacity:.45}
-.bbtn[aria-pressed="true"]{background:var(--blue);color:#fff;opacity:1}
 .top h1{font-size:22px;font-weight:700;margin:0}
 .tbtn{border:0;background:none;color:var(--blue);font-size:15px;padding:6px 4px;cursor:pointer}
 
@@ -56,28 +53,19 @@ input{font-size:16px}
 .meta input::-webkit-date-and-time-value{text-align:left}
 
 .group{background:var(--cell);border-radius:10px;overflow:hidden}
-.head,.r{display:grid;grid-template-columns:58px minmax(0,1fr) minmax(0,1fr) 24px;gap:3px;align-items:center;padding:0 6px}
+.head,.r{display:grid;grid-template-columns:58px minmax(0,1fr) minmax(0,1fr) 26px 28px;gap:3px;align-items:center;padding:0 6px}
 .head{font-size:10px;color:var(--muted);font-weight:600;padding:0 5px 2px}
 .r{padding:2px 5px;border-top:.5px solid var(--sep)}
 .group > .r:first-child{border-top:0}
 .r .n{display:flex;align-items:center;gap:3px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;min-width:0}
 .r .n span{overflow:hidden;text-overflow:ellipsis}
 .r .f{position:relative;display:block;height:24px;min-width:0;overflow:hidden;border-radius:6px;background:var(--field)}
-.r .f .b{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:0;border-radius:5px;background:transparent;color:var(--muted);font-size:12px;font-weight:800;padding:0;cursor:pointer;z-index:1;line-height:1}
-.r .f .b[aria-pressed="true"]{background:var(--blue);color:#fff}
-.r .f input.bold{font-weight:700}
-.sheet .bold{font-weight:700}
 .r .f:focus-within{box-shadow:0 0 0 1.5px var(--blue) inset;background:var(--cell)}
 .r .f input{position:absolute;left:0;top:0;width:125%;height:30px;transform:scale(.8);transform-origin:0 0;border:0;background:transparent;padding:0 8px;font-size:16px;outline:none}
-.r .f input{color:transparent!important;caret-color:var(--ink);z-index:1}
-.r .f input.vac{font-weight:400}
-.r .f .ov{position:absolute;left:0;top:0;width:125%;height:30px;transform:scale(.8);transform-origin:0 0;padding:0 8px;font-size:16px;line-height:30px;white-space:pre;overflow:hidden;pointer-events:none;color:var(--ink);font-family:inherit}
-.r .f .ov span{display:inline-block}
-.r .f .ov b{font-weight:400;-webkit-text-stroke:.9px currentColor}   /* looks bold but keeps the same width, so the caret lines up */
-.r .f .ov.vac{color:var(--red);-webkit-text-stroke:.5px currentColor}
 .r input.vac{color:var(--red);font-weight:600}
-.r .v{width:24px;height:24px;border-radius:50%;border:0;background:transparent;color:var(--muted);font-size:10px;font-weight:600;cursor:pointer;padding:0}
-.r .v[aria-pressed="true"]{background:var(--red-soft);color:var(--red)}
+.r .v,.r .s{width:26px;height:24px;border-radius:50%;border:0;background:transparent;color:var(--muted);font-size:10px;font-weight:600;cursor:pointer;padding:0}
+.r .s{width:28px;border-radius:12px}
+.r .v[aria-pressed="true"],.r .s[aria-pressed="true"]{background:var(--red-soft);color:var(--red)}
 .r.hid{display:none}
 
 /* hide/show mode */
@@ -85,7 +73,7 @@ input{font-size:16px}
 .chk[aria-pressed="true"]{background:var(--blue);border-color:var(--blue)}
 .editing .chk{display:grid;place-items:center}
 .editing .r.hid{display:grid;opacity:.4}
-.editing .r .f,.editing .r .v{pointer-events:none}
+.editing .r .f,.editing .r .v,.editing .r .s{pointer-events:none}
 
 .note{font-size:12px;color:var(--muted);margin:6px 8px;display:flex;justify-content:space-between;gap:8px}
 .note button{border:0;background:none;color:var(--blue);font-size:12px;padding:0;cursor:pointer;white-space:nowrap}
@@ -106,14 +94,6 @@ input{font-size:16px}
 .mini .mscale{transform-origin:top left;width:max-content}
 .mini .rs{position:absolute;right:0;bottom:0;width:26px;height:26px;touch-action:none;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,rgba(60,60,67,.55) 50%,rgba(60,60,67,.55) 58%,transparent 58%,transparent 70%,rgba(60,60,67,.55) 70%,rgba(60,60,67,.55) 78%,transparent 78%)}
 .minipill{position:fixed;right:10px;bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:7;border:0;border-radius:999px;background:var(--cell);color:var(--blue);font-size:13px;font-weight:600;padding:7px 12px;box-shadow:0 3px 12px rgba(0,0,0,.2);cursor:pointer}
-.typing{position:fixed;left:8px;right:8px;top:0;z-index:99;pointer-events:none;background:rgba(28,28,30,.94);color:#fff;border-radius:12px;padding:8px 12px 9px;box-shadow:0 6px 22px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);max-width:640px;margin:0 auto}
-.typing .tl{font-size:11px;font-weight:600;color:#8E8E93;letter-spacing:.02em;margin-bottom:2px}
-.typing .tl b{color:#0A84FF;font-weight:700}
-.typing .tt{font-size:17px;line-height:1.3;word-break:break-word;max-height:4.2em;overflow:hidden}
-.typing .tt.empty{color:#8E8E93}
-.typing .tt i{display:inline-block;width:2px;height:1.05em;background:#0A84FF;vertical-align:text-bottom;margin-left:1px;animation:blink 1s steps(1) infinite}
-@keyframes blink{50%{opacity:0}}
-@media (prefers-reduced-motion:reduce){.typing .tt i{animation:none}}
 .sv{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.82);display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top,0px)) 10px calc(10px + env(safe-area-inset-bottom,0px));color:#fff}
 .sv .svt{font-size:15px;line-height:1.4;text-align:center;margin:2px 4px 8px}
 .sv .svt b{color:#FFD60A}
@@ -122,11 +102,6 @@ input{font-size:16px}
 .sv .svb{display:flex;gap:8px;margin-top:8px}
 .sv .svb button{flex:1;border:0;border-radius:10px;padding:11px 0;font-size:15px;font-weight:600;background:#fff;color:#007AFF;cursor:pointer}
 .sv .svb button.p{background:#007AFF;color:#fff}
-.abar{position:fixed;left:8px;right:8px;top:0;z-index:120;max-width:640px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:5px 10px;background:var(--cell);border:.5px solid var(--sep);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.22)}
-.abar .bbtn{width:44px;height:32px;font-size:18px;border:1px solid var(--sep)}
-.abar .bbtn[aria-pressed="true"]{border-color:transparent}
-.abar .ablab{flex:1;font-size:13px;color:var(--muted)}
-.abar .adone{border:0;background:none;color:var(--blue);font-size:16px;font-weight:600;padding:6px 4px;cursor:pointer}
 [hidden]{display:none!important}
 
 /* full preview sheet */
@@ -167,13 +142,13 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 <body>
 <div class="wrap">
   <div class="top">
-    <h1>Q on <span class="ver">V02.2</span></h1>
+    <h1>Q on <span class="ver">V02.7</span></h1>
     <span class="tops"><button class="tbtn" id="editBtn">Hide / Show</button></span>
   </div>
 
   <label class="meta"><b>Q on</b><input id="date" type="date" aria-label="Date"></label>
 
-  <div class="head"><span id="headName"></span><span>AM</span><span>PM</span><span></span></div>
+  <div class="head"><span id="headName"></span><span>AM</span><span>PM</span><span></span><span></span></div>
     <div class="group" id="list"></div>
   <div class="note"><span id="hidNote" style="min-width:0;overflow-wrap:anywhere"></span><button class="clear" id="clearAll">Clear all</button></div>
 
@@ -198,18 +173,16 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
   <button id="btnPdf" class="alt">Save PDF</button>
   <button id="btnShare" class="alt">Share</button>
 </div>
-<div class="typing" id="typing" hidden aria-live="polite"><div class="tl" id="tl"></div><div class="tt" id="tt"></div></div>
 <div class="sv" id="sv" hidden>
   <div class="svt" id="svt"></div>
   <div class="svi"><img id="svimg" alt="Q on"></div>
   <div class="svb"><button id="svOpen" class="p" hidden>Open in browser</button><button id="svClose">Close</button></div>
 </div>
-<div class="abar" id="abar" hidden><button class="bbtn" id="boldBtn" aria-label="Bold" aria-pressed="false">B</button><span class="ablab" id="ablab">Bold off</span><button class="adone" id="aDone">Done</button></div>
 <div class="toast" id="toast" role="status"></div>
 <div id="exportHost"></div>
 
 <script>
-const PEOPLE=["P Aom","P Jiam","Top","Luktarn","Bank","View","Nooknick","Ming","Puifai","P Fai","Bung","Taa","Dong","Pookan","New","Earn","Pare","Nat","Champ","Blue","Mint","Yim","Nina","Fhasai","PJ","Tonliu","Joe","Yok intern","Boom"];
+const PEOPLE=["P Aom","P Jiam","Top","Luktarn","Bank","View","Nooknick","Ming","Puifai","P Fai","Bung","Taa","Dong","Pookan","New","Earn","Pare","Nat","Champ","Blue","Mint","Yim","Nina","Fhasai","PJ","Tonliu","Joe","Boom"];
 const HIDDEN_DEFAULT={Puifai:true,Boom:true};
 const SEED={
   "P Aom":["PSU",""],"P Jiam":["CCIT clinic","BMC adjust mode"],"Top":["Chonlaprathan implant",""],
@@ -223,18 +196,20 @@ const SEED={
   "Nat":["CMU clinic",""],"Champ":["Surat replacement",""],"Blue":["BI FU,SMV FU","SMV FU"],
   "Mint":["Thonburi2 PD,Huachiew FU","Navy clinic"],"Yim":["Navy mri,SIPH FU","Siriraj clinic"],
   "Nina":["Vacation","Vacation"],"Fhasai":["TU clinic","Vajira clinic"],"PJ":["Vacation","Vacation"],
-  "Tonliu":["Vacation","Vacation"],"Joe":["","Vajira enroll"],"Yok intern":["CCIT clinic","Army clinic"],
+  "Tonliu":["Vacation","Vacation"],"Joe":["","Vajira enroll"],
   "Boom":["Chula ECG ws meeting","Army clinic"]
 };
 const ymd=off=>{const d=new Date();d.setDate(d.getDate()+off);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
 const KEY="roster-am-pm-v11b", VAC="Vacation";
-const isVac=t=>/vacation/i.test(t||"")||(t||"").trim()==="ลา";
+const SICK="Sick leave";
+const isV=t=>/vacation/i.test(t||"")||(t||"").trim()==="ลา";
+const isS=t=>/sick\s*leave/i.test(t||"");
+const isVac=t=>isV(t)||isS(t)||/leave/i.test(t||"");   // vacation, or any text containing "leave", shows in red
 const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const $=id=>document.getElementById(id);
-const BO="\u2062",BC="\u2063";   // invisible bold markers
 
 function load(){
-  let s=null; try{s=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){}
+  let s=null; for(const k of [KEY,KEY+"-bak"]){ try{ s=JSON.parse(localStorage.getItem(k)||"null"); }catch(e){ s=null; } if(s&&s.entries) break; }   // fall back to the backup copy if the main one is damaged
   if(!s||!s.entries){
     const entries={}; for(const n of PEOPLE){entries[n]={am:"",pm:""};}
     s={title:"ตารางงาน",date:ymd(1),entries};
@@ -244,14 +219,15 @@ function load(){
     delete s.show;
   }
   for(const n of PEOPLE){ if(!s.entries[n]) s.entries[n]={am:"",pm:""}; if(!(n in s.hidden)) s.hidden[n]=!!HIDDEN_DEFAULT[n]; }
-  for(const n of PEOPLE){ const e=s.entries[n];            // migrate old whole-cell bold flags
-    for(const c of ["am","pm"]){ if(e[c+"B"]&&e[c]&&!/\*/.test(e[c])) e[c]="*"+e[c].trim()+"*"; delete e[c+"B"]; } }
-  for(const n of PEOPLE){ const e=s.entries[n]; for(const c of ["am","pm"]){ e[c]=String(e[c]||"").replace(/\*([^*]+)\*/g,BO+"$1"+BC); } }   // old *bold* data -> invisible markers
+  for(const n of PEOPLE){ const e=s.entries[n];            // bold was removed: clear any old bold markers / flags from saved text
+    for(const c of ["am","pm"]){ e[c]=String(e[c]||"").replace(/[\u2062\u2063]/g,"").replace(/\*([^*]+)\*/g,"$1"); delete e[c+"B"]; } }
   if(s.dateSetOn!==ymd(0)){ s.date=ymd(1); s.dateSetOn=ymd(0); }   // standard = tomorrow; a manual change lasts for today
   return s;
 }
 let state=load(), saveT, prevT, editing=false;
-function save(){ clearTimeout(saveT); saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}},250); }
+function save(){ try{ const j=JSON.stringify(state); localStorage.setItem(KEY,j); localStorage.setItem(KEY+"-bak",j); }catch(e){} }
+addEventListener("pagehide",save);
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden") save(); });
 function changed(){ save(); clearTimeout(prevT); prevT=setTimeout(renderPreview,150); }
 const visible=()=>PEOPLE.filter(n=>!state.hidden[n]);
 
@@ -260,11 +236,12 @@ function buildList(){
     const e=state.entries[n], h=state.hidden[n];
     return `<div class="r${h?" hid":""}" data-n="${esc(n)}">
       <span class="n"><button class="chk" aria-pressed="${!h}" aria-label="Show ${esc(n)}">${h?"":"✓"}</button><span>${esc(n)}</span></span>
-      <span class="f"><span class="ov" aria-hidden="true"><span></span></span><input data-k="am" value="${esc(e.am)}" class="${isVac(e.am)?"vac":""}" enterkeyhint="next" autocomplete="off" autocapitalize="sentences" aria-label="${esc(n)} AM"></span>
-      <span class="f"><span class="ov" aria-hidden="true"><span></span></span><input data-k="pm" value="${esc(e.pm)}" class="${isVac(e.pm)?"vac":""}" enterkeyhint="next" autocomplete="off" autocapitalize="sentences" aria-label="${esc(n)} PM"></span>
-      <button class="v" aria-pressed="${isVac(e.am)&&isVac(e.pm)}" aria-label="${esc(n)} vacation all day">Vac</button>
+      <span class="f"><input data-k="am" value="${esc(e.am)}" class="${isVac(e.am)?"vac":""}" enterkeyhint="next" autocomplete="off" autocapitalize="sentences" aria-label="${esc(n)} AM"></span>
+      <span class="f"><input data-k="pm" value="${esc(e.pm)}" class="${isVac(e.pm)?"vac":""}" enterkeyhint="next" autocomplete="off" autocapitalize="sentences" aria-label="${esc(n)} PM"></span>
+      <button class="v" aria-pressed="${isV(e.am)&&isV(e.pm)}" aria-label="${esc(n)} vacation all day">Vac</button>
+      <button class="s" aria-pressed="${isS(e.am)&&isS(e.pm)}" aria-label="${esc(n)} sick leave all day">Sick</button>
     </div>`;}).join("");
-  refreshJobs(); refreshNote(); refreshOv();
+  refreshJobs(); refreshNote();
 }
 function refreshNote(){
   const hid=PEOPLE.filter(n=>state.hidden[n]);
@@ -282,11 +259,10 @@ $("editBtn").onclick=()=>{
 };
 $("list").addEventListener("input",ev=>{
   const inp=ev.target; if(!inp.dataset.k) return;
-  boldTransform(inp); renderOv(inp);
   const row=inp.closest(".r"), e=state.entries[row.dataset.n];
   e[inp.dataset.k]=inp.value; inp.classList.toggle("vac",isVac(inp.value));
-  const bt=row.querySelector(`.b[data-b="${inp.dataset.k}"]`); if(bt) bt.setAttribute("aria-pressed",hasB(inp.value));
-  row.querySelector(".v").setAttribute("aria-pressed",isVac(e.am)&&isVac(e.pm));
+  row.querySelector(".v").setAttribute("aria-pressed",isV(e.am)&&isV(e.pm));
+  row.querySelector(".s").setAttribute("aria-pressed",isS(e.am)&&isS(e.pm));
   changed();
 });
 $("list").addEventListener("change",refreshJobs);
@@ -306,13 +282,14 @@ $("list").addEventListener("click",ev=>{
     const c=row.querySelector(".chk"); c.setAttribute("aria-pressed",!state.hidden[n]); c.textContent=state.hidden[n]?"":"✓";
     refreshNote(); changed(); return;
   }
-  const bb=ev.target.closest(".b");
-  if(bb){ toggleBold(row.querySelector(`input[data-k="${bb.dataset.b}"]`)); return; }
-  const b=ev.target.closest(".v"); if(!b) return;
-  const e=state.entries[n], on=b.getAttribute("aria-pressed")!=="true";
-  e.am=on?VAC:""; e.pm=on?VAC:"";
-  row.querySelectorAll("input").forEach(i=>{i.value=e[i.dataset.k];i.classList.toggle("vac",on);renderOv(i);});
-  b.setAttribute("aria-pressed",on); changed();
+  const b=ev.target.closest(".v,.s"); if(!b) return;
+  const e=state.entries[n], isSick=b.classList.contains("s"), word=isSick?SICK:VAC, test=isSick?isS:isV;
+  const on=!(test(e.am)&&test(e.pm));                     // tap again to clear
+  e.am=on?word:""; e.pm=on?word:"";
+  row.querySelectorAll("input").forEach(i=>{i.value=e[i.dataset.k];i.classList.toggle("vac",on);});
+  row.querySelector(".v").setAttribute("aria-pressed",isV(e.am)&&isV(e.pm));
+  row.querySelector(".s").setAttribute("aria-pressed",isS(e.am)&&isS(e.pm));
+  changed();
 });
 let clearT=null;
 $("clearAll").onclick=()=>{
@@ -331,92 +308,6 @@ $("date").addEventListener("input",e=>{state.date=e.target.value;state.dateSetOn
 
 function fmtDate(d){ if(!d) return "____"; try{return new Date(d+"T00:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});}catch(e){return d;} }
 
-/* ---- bold: stored with invisible markers (BO ... BC) around bold text, so no symbols ever show in the field ---- */
-const segs=t=>String(t||"").split(/(⁢[^⁢⁣]+⁣)/).filter(x=>x!=="").map(x=>(x[0]===BO&&x.length>=3&&x.endsWith(BC))?{t:x.slice(1,-1),b:1}:{t:x.replace(/[⁢⁣]/g,""),b:0});
-const hasB=t=>/⁢[^⁢⁣]+⁣/.test(t||"");
-const fmt=t=>segs(t).map(g=>g.b?`<b>${esc(g.t)}</b>`:esc(g.t)).join("");
-function renderOv(inp){                  // paints the formatted (partly bold) text behind the transparent input
-  const ov=inp.previousElementSibling; if(!ov||!ov.classList.contains("ov")) return;
-  ov.firstElementChild.innerHTML=fmt(inp.value);
-  ov.classList.toggle("vac",isVac(inp.value));
-  ov.firstElementChild.style.transform=`translateX(${-inp.scrollLeft}px)`;
-}
-function refreshOv(){ $("list").querySelectorAll(".f input").forEach(renderOv); }
-$("list").addEventListener("focusout",ev=>{ if(ev.target.dataset&&ev.target.dataset.k) setTimeout(()=>renderOv(ev.target),50); });
-function ovLoop(){                       // keep the painted text scrolled like the input while typing long text
-  const ov=typeEl&&typeEl.previousElementSibling;
-  if(ov&&ov.firstElementChild) ov.firstElementChild.style.transform=`translateX(${-typeEl.scrollLeft}px)`;
-  requestAnimationFrame(ovLoop);
-}
-const mixW=t=>segs(t).reduce((a,g)=>a+textW(g.t,g.b?700:400),0);
-function parseB(v){                       // plain text + per-character bold flags + map from string index to plain index
-  let text="",flags=[],map=[],bold=false;
-  for(let i=0;i<v.length;i++){ const c=v[i]; map.push(text.length); if(c===BO){bold=true;continue;} if(c===BC){bold=false;continue;} text+=c; flags.push(bold?1:0); }
-  map.push(text.length); return {text,flags,map};
-}
-function serB(text,flags){
-  let out="",inb=false;
-  for(let i=0;i<text.length;i++){ const f=flags[i]; if(f&&!inb){out+=BO;inb=true;} if(!f&&inb){out+=BC;inb=false;} out+=text[i]; }
-  return inb?out+BC:out;
-}
-function toggleBoldValue(v,s,e){          // bold / unbold the selected part
-  const p=parseB(v); let a=p.map[s], b=p.map[e];
-  if(a===undefined||b===undefined) return v;
-  while(a<b&&/\s/.test(p.text[a])) a++;
-  while(b>a&&/\s/.test(p.text[b-1])) b--;
-  if(a>=b) return v;
-  const all=p.flags.slice(a,b).every(f=>f), fl=p.flags.slice();
-  for(let i=a;i<b;i++) fl[i]=all?0:1;
-  return serB(p.text,fl);
-}
-function posAfterPlain(v,n){ if(n<=0) return 0; let c=0; for(let i=0;i<v.length;i++){ if(v[i]!==BO&&v[i]!==BC){ c++; if(c===n) return i+1; } } return v.length; }
-function cleanEmpty(v,c){
-  const f=x=>x.replace(/⁢⁣/g,"").replace(/⁣⁢/g,"");
-  const bf=v.slice(0,c); return [f(v), c-(bf.length-f(bf).length)];
-}
-
-/* ---- keyboard-style bold: tap B (no selection) = bold typing on, tap again = off. Selection + B = bold/unbold the selection ---- */
-let boldMode=false;
-function boldTransform(inp){
-  const nv=inp.value, pv=inp._pv;
-  if(inp._skip){ inp._skip=false; inp._pv=nv; return; }
-  if(pv===undefined||nv===pv){ inp._pv=nv; return; }
-  const caret=inp.selectionStart, L=nv.length-pv.length;
-  let a,b;
-  if(L>0 && caret>=L && pv===nv.slice(0,caret-L)+nv.slice(caret)){ a=caret-L; b=nv.length-caret; }   // plain insertion at the caret
-  else{
-    const mn=Math.min(pv.length,nv.length); a=0; while(a<mn&&pv[a]===nv[a]) a++;
-    b=0; while(b<mn-a&&pv[pv.length-1-b]===nv[nv.length-1-b]) b++;
-  }
-  const before=nv.slice(0,a), ins=nv.slice(a,nv.length-b), after=nv.slice(nv.length-b);
-  let out=nv, pos=null;
-  if(ins){
-    if(!/[⁢⁣]/.test(ins)){
-      const inside=before.lastIndexOf(BO)>before.lastIndexOf(BC);
-      if(boldMode&&!inside){
-        if(before.endsWith(BC)){ out=before.slice(0,-1)+ins+BC+after; pos=before.length-1+ins.length; }   // continue the bold run just before
-        else{ out=before+BO+ins+BC+after; pos=before.length+1+ins.length; }
-      }else if(!boldMode&&inside&&after.startsWith(BC)){ out=before+BC+ins+after.slice(1); pos=before.length+1+ins.length; } // bold is off: step out of the run
-    }
-  }else{
-    const del=pv.slice(a,pv.length-b);
-    if(del&&/^[⁢⁣]+$/.test(del)){            // backspace landed on an invisible marker: delete the visible character before it instead
-      let k=a-1; while(k>=0&&(pv[k]===BO||pv[k]===BC)) k--;
-      if(k>=0){ out=pv.slice(0,k)+pv.slice(k+1); pos=k; } else { out=pv; pos=a+del.length; }
-    }
-    const t=cleanEmpty(out,pos===null?inp.selectionStart:pos); out=t[0]; pos=t[1];
-  }
-  if(out!==nv){ inp.value=out; try{inp.setSelectionRange(pos,pos);}catch(e){} }
-  inp._pv=inp.value;
-}
-function toggleBold(inp){
-  const s=inp.selectionStart, e=inp.selectionEnd, v=inp.value;
-  const nv=toggleBoldValue(v,s,e); if(nv===v) return;
-  const endPlain=parseB(v).map[e];
-  inp.value=nv; inp._skip=true;
-  try{ const p=posAfterPlain(nv,endPlain); inp.setSelectionRange(p,p); }catch(x){}
-  inp.dispatchEvent(new Event("input",{bubbles:true}));
-}
 let SW=900; // current report width in px
 const _mc=document.createElement("canvas").getContext("2d");
 function textW(t,weight){ _mc.font=`${weight} 22px ${getComputedStyle(document.body).fontFamily}`; return _mc.measureText(t||"").width; }
@@ -425,13 +316,13 @@ function sheetHTML(){
   let nameW=0, colW=0;
   for(const n of vis){ const e=state.entries[n];
     nameW=Math.max(nameW,textW(n,700));
-    colW=Math.max(colW,mixW(e.am),mixW(e.pm)); }
+    colW=Math.max(colW,textW(e.am,400),textW(e.pm,400)); }
   nameW=Math.max(150,Math.ceil(nameW)+30);
   colW=Math.max(330,Math.ceil(colW)+34);           // AM and PM always the same width
   SW=nameW+colW*2+28;
   const cols=`<colgroup><col style="width:${nameW}px"><col style="width:${colW}px"><col style="width:${colW}px"></colgroup>`;
   const rows=visible().map(n=>{const e=state.entries[n];
-    return `<tr><th>${esc(n)}</th><td class="${isVac(e.am)?"vac":""}">${fmt(e.am)}</td><td class="${isVac(e.pm)?"vac":""}">${fmt(e.pm)}</td></tr>`;}).join("");
+    return `<tr><th>${esc(n)}</th><td class="${isVac(e.am)?"vac":""}">${esc(e.am)}</td><td class="${isVac(e.pm)?"vac":""}">${esc(e.pm)}</td></tr>`;}).join("");
   const head=`<div class="st"><b>Q on ${esc(fmtDate(state.date))}</b></div>`;
   return `<div style="width:${SW-28}px">${head}<table>${cols}<thead><tr><th></th><th>AM</th><th>PM</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
@@ -628,93 +519,31 @@ $("btnPdf").onclick=()=>run($("btnPdf"),async()=>{
   await offer(pdf.output("blob"),fname("pdf"));
 });
 
-/* ---- typing preview: shows the full text of the field being edited ---- */
-let typeEl=null, hideT=null;
-function placeBar(){
-  // sits right next to the typing bubble (on the side away from the row), not at the keyboard edge
-  const bar=$("abar"), tb=$("typing"); if(bar.hidden||tb.hidden||!typeEl) return;
-  const t=tb.getBoundingClientRect(), r=typeEl.closest(".r").getBoundingClientRect();
-  const h=bar.offsetHeight||42, bubbleAbove=t.bottom<=r.top+2;
-  let top=bubbleAbove?t.top-h-6:t.bottom+6;
-  if(top<4) top=t.bottom+6;                       // no room above: go below the bubble
-  bar.style.transform=`translateY(${Math.round(top)}px)`;
-}
-function placeTyping(){
-  // anchor next to the field being edited, so it is always where you are looking
-  const box=$("typing"); if(!typeEl||box.hidden) return;
-  const r=typeEl.closest(".r").getBoundingClientRect(), h=box.offsetHeight||60;
-  let top=r.top-h-8;
-  if(top<6) top=r.bottom+8;                       // no room above: put it just below the row
-  box.style.transform=`translateY(${Math.round(top)}px)`;
-  placeBar();
-}
-function showTyping(inp){
-  if(typeEl!==inp) boldMode=false;
-  typeEl=inp; clearTimeout(hideT); inp._pv=inp.value;
-  const row=inp.closest(".r"), n=row.dataset.n, k=inp.dataset.k.toUpperCase();
-  $("tl").innerHTML=`<b>${esc(n)}</b> · ${k}`;
-  updateTyping(); $("typing").hidden=false; $("abar").hidden=false; placeTyping(); placeBar(); setTimeout(()=>{placeTyping();placeBar();},120); setTimeout(()=>{placeTyping();placeBar();},400);
-}
-function syncBold(){
-  const b=$("boldBtn"); if(!b) return;
-  b.classList.toggle("idle",!typeEl);
-  b.setAttribute("aria-pressed",!!(typeEl&&boldMode));
-  const l=$("ablab"); if(l) l.textContent=boldMode?"Bold on":"Bold off · select text to bold part";
-}
-function updateTyping(){
-  syncBold();
-  if(!typeEl) return;
-  const v=typeEl.value, t=$("tt");
-  t.classList.toggle("empty",!v);
-  t.innerHTML=(v?fmt(v):"(empty)")+"<i></i>";
-}
-// Bold button: acts on the selection / word at the caret in the cell being edited (does not steal focus, so the keyboard stays)
-(function(){
-  const bb=$("boldBtn");
-  bb.addEventListener("pointerdown",ev=>{
-    ev.preventDefault();
-    if(!typeEl){ toast("Tap a cell first, then B"); return; }
-    const sel=typeEl.selectionStart!==typeEl.selectionEnd;
-    if(sel){ toggleBold(typeEl); }                       // text selected: bold / unbold just that part
-    else{ boldMode=!boldMode; toast(boldMode?"Bold on":"Bold off"); }   // like a keyboard: typing is bold until tapped again
-    syncBold();
-  });
-  bb.addEventListener("mousedown",ev=>ev.preventDefault());
-  bb.addEventListener("touchstart",ev=>ev.preventDefault(),{passive:false});
-})();
-(function(){
-  const bar=$("abar");
-  bar.addEventListener("mousedown",ev=>ev.preventDefault());
-  bar.addEventListener("touchstart",ev=>{ if(!ev.target.closest("#aDone")) ev.preventDefault(); },{passive:false});
-  $("aDone").addEventListener("click",()=>{ if(typeEl) typeEl.blur(); });
-})();
-$("list").addEventListener("focusin",ev=>{ if(ev.target.dataset&&ev.target.dataset.k && !editing) showTyping(ev.target); });
-$("list").addEventListener("input",ev=>{ if(ev.target===typeEl){ updateTyping(); placeTyping(); } });
-$("list").addEventListener("focusout",()=>{ hideT=setTimeout(()=>{ if(!document.activeElement||!document.activeElement.dataset||!document.activeElement.dataset.k){ typeEl=null; boldMode=false; $("typing").hidden=true; $("abar").hidden=true; syncBold(); } },150); });
-if(window.visualViewport){ visualViewport.addEventListener("resize",()=>{placeTyping();placeBar();}); visualViewport.addEventListener("scroll",()=>{placeTyping();placeBar();}); }
-addEventListener("scroll",()=>{placeTyping();placeBar();},{passive:true,capture:true});
-
-buildList(); renderPreview(); setMini(state.mini.open); ovLoop();
+buildList(); renderPreview(); setMini(state.mini.open);
 
 /* ---- auto-update: when the app opens or comes back to the foreground, check for a newer index.html and reload once.
         Your entries live in this browser's storage (key "roster-am-pm-v11b"), which a reload never touches. ---- */
 (function(){
   const cur=(document.querySelector('meta[name="build"]')||{}).content; if(!cur) return;
-  let last=0;
+  let last=0, pending=null;
+  const typing=()=>{ const ae=document.activeElement; return !!(ae&&ae.dataset&&ae.dataset.k); };
+  const busy=()=>typing()||!$("overlay").hidden||!$("sv").hidden;      // never reload while you are typing or in a full-screen view
+  function apply(b){
+    let tried=""; try{tried=sessionStorage.getItem("q_build_try")||"";}catch(e){}
+    if(tried===b) return;                                              // never loop
+    try{ sessionStorage.setItem("q_build_try",b); }catch(e){}
+    save();                                                            // write everything typed so far, then reload
+    location.replace(location.pathname+"?b="+encodeURIComponent(b));
+  }
+  function tryApply(){ if(pending&&!busy()) apply(pending); }          // waits until you finish typing
   function check(){
     const now=Date.now(); if(now-last<20000) return; last=now;
     fetch(location.pathname+"?_="+now,{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{
       const m=t.match(/<meta name="build" content="([^"]+)"/); if(!m||m[1]===cur) return;
-      const ae=document.activeElement;
-      if(ae&&ae.dataset&&ae.dataset.k) return;                    // never interrupt typing
-      if(!$("overlay").hidden||!$("sv").hidden) return;           // or a full-screen view
-      let tried=""; try{tried=sessionStorage.getItem("q_build_try")||"";}catch(e){}
-      if(tried===m[1]) return;                                    // never loop
-      try{ sessionStorage.setItem("q_build_try",m[1]); clearTimeout(saveT); localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){}   // save first
-      location.replace(location.pathname+"?b="+encodeURIComponent(m[1]));
+      pending=m[1]; tryApply();
     }).catch(()=>{});
   }
-  check();
+  check(); setInterval(tryApply,2500);
   document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") check(); });
   addEventListener("pageshow",e=>{ if(e.persisted) check(); });
 })();
